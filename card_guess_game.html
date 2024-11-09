@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>撲克牌比大小遊戲</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            font-size: 16px;
+            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #message {
+            font-size: 18px;
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>撲克牌比大小遊戲</h1>
+        <p id="status">歡迎來到遊戲！目前的代幣：<span id="tokens">10</span></p>
+        <p>莊家的牌是：<span id="dealerCard">?</span></p>
+        <button onclick="guess('H')">猜大</button>
+        <button onclick="guess('L')">猜小</button>
+        <p id="message"></p>
+        <button onclick="restartGame()">重新開始遊戲</button>
+    </div>
+    <script>
+        let tokens = 10;     // 初始代幣數量
+        let wager = 1;       // 初始下注金額
+        let dealerCard = 0;  // 莊家當前的牌
+        let nextCard = 0;    // 下一張牌
+
+        // 初始化遊戲
+        function startGame() {
+            tokens = 10;
+            wager = 1;
+            updateStatus();
+            dealCard();
+        }
+
+        // 莊家抽牌
+        function dealCard() {
+            dealerCard = Math.floor(Math.random() * 13) + 1;
+            document.getElementById("dealerCard").innerText = dealerCard;
+            document.getElementById("message").innerText = "請猜大或小！";
+        }
+
+        // 玩家猜大小
+        function guess(playerGuess) {
+            if (tokens <= 0) {
+                alert("代幣不足，請重新開始遊戲！");
+                return;
+            }
+
+            tokens -= wager;  // 每次猜測消耗代幣
+            nextCard = Math.floor(Math.random() * 13) + 1;  // 抽取下一張牌
+
+            // 判斷結果
+            if ((playerGuess === 'H' && nextCard > dealerCard) ||
+                (playerGuess === 'L' && nextCard < dealerCard)) {
+                tokens += 5 * wager;  // 猜對，贏 5 倍代幣
+                document.getElementById("message").innerText = `恭喜你猜對了！下一張牌是 ${nextCard}。贏得 ${5 * wager} 個代幣！`;
+            } else {
+                // 猜錯，顯示爆炸訊息並詢問是否加倍下注
+                document.getElementById("message").innerText = `你猜錯了！下一張牌是 ${nextCard}。爆炸！扣除 ${2 * wager} 個代幣！`;
+                tokens -= 2 * wager;
+
+                if (tokens <= 0) {
+                    alert("代幣不足，遊戲結束！");
+                    tokens = 0;
+                    updateStatus();
+                    return;
+                }
+
+                if (confirm("是否要加倍下注？")) {
+                    wager *= 2;
+                } else {
+                    wager = 1;  // 重置下注金額
+                }
+            }
+
+            dealerCard = nextCard;  // 更新莊家的牌
+            updateStatus();
+        }
+
+        // 更新狀態顯示
+        function updateStatus() {
+            document.getElementById("tokens").innerText = tokens;
+            document.getElementById("dealerCard").innerText = dealerCard;
+        }
+
+        // 重新開始遊戲
+        function restartGame() {
+            startGame();
+        }
+
+        startGame();  // 開始遊戲
+    </script>
+</body>
+</html>
